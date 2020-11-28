@@ -1,0 +1,16 @@
+@charset "UTF-8";
+
+/* header_OwnStyle */
+.header_background_OwnStyle {
+	background-color: rgb(32, 100, 218);
+}
+/* footer_OwnStyle */
+.footer_background_OwnStyle {
+	background-color: gray;
+}
+
+input[type=radio] {
+	border: 0px;
+	width: 100%;
+	height: 1.5em;
+}
