@@ -1,0 +1,44 @@
+@charset "UTF-8";
+
+#mySidenav a {
+	position: fixed;
+	right: -100px;
+	transition: 0.3s;
+	padding: 15px;
+	width: 150px;
+	text-decoration: none;
+	font-size: 20px;
+	color: white;
+	border-radius: 5px 0 0 5px;
+	z-index:2;
+}
+
+#mySidenav a:hover {
+	right: 0;
+}
+
+#home {
+	top: 100px;
+	background-color: #4CAF50;
+}
+
+#post {
+	top: 160px;
+	background-color: #2196F3;
+}
+
+#bookMark {
+	top: 220px;
+	background-color: #f44336;
+}
+
+#follow {
+	top: 280px;
+	background-color: #555;
+}
+
+/* #home {
+	top: 340px;
+	background-color: #4CAF50;
+} */
+
