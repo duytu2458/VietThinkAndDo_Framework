@@ -1,0 +1,11 @@
+@charset "UTF-8";
+/* header Stylle */
+.header_background_OwnStyle{
+	background-color: rgb(255, 117, 26);
+}
+
+/* footer Stylle */
+
+.footer_background_OwnStyle{
+	background-color: gray;
+}
