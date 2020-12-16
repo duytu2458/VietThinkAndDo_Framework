@@ -1,0 +1,10 @@
+@charset "UTF-8";
+
+
+.quick_menu_OtherStyle li {
+	display: inline-block;
+}
+
+.quick_menu_OtherStyle li:before {
+	content: " / ";
+}

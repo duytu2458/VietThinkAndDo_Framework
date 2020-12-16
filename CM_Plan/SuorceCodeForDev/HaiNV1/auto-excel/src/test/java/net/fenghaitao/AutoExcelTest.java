@@ -75,11 +75,12 @@ public class AutoExcelTest {
         DataSet dataSet = AutoExcel.read(fileName, importParas);
         // Method 1: Obtain the original data without type conversion, you can
         //           check whether the data meets the requirements in this way
-        List<Map<String, Object>> products = dataSet.get("Product");
-        List<Map<String, Object>> projects = dataSet.get("Project");
+//        List<Map<String, Object>> products = dataSet.get("Product");
+//        List<Map<String, Object>> projects = dataSet.get("Project");
         // Method 2: Obtain the data of the specified class through the sheet index, the type is
         //           automatically converted, and an exception will be thrown if the conversion fails
-        // List<Product> products = dataSet.get(0, Product.class);
+         List<Product> products = dataSet.get(0, Product.class);
+         System.out.println(products);
         // List<Project> projects= dataSet.get(1, Project.class);
         // Method 3: Obtain the data of the specified class through the sheet name, the type is
         //           automatically converted, and an exception will be thrown if the conversion fails

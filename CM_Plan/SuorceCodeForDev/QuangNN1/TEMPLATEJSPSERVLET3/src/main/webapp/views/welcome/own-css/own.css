@@ -1,0 +1,14 @@
+@charset "UTF-8";
+/* header Style */
+/* rgb(255, 117, 26) */
+.header_background_OwnStyle {
+	background-color: rgb(0, 92, 230);
+}
+
+.header_btn_OwnStyle {
+	background-color: rgb(0, 92, 230);
+	border-color: rgb(0, 92, 230);
+	
+}
+
+/* footer Style */

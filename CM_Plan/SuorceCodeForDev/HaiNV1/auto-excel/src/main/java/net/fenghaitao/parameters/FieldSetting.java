@@ -19,4 +19,11 @@ public class FieldSetting {
      * The column name displayed in the final excel
      */
     private String displayName;
+	public FieldSetting(String fieldName, String displayName) {
+		super();
+		this.fieldName = fieldName;
+		this.displayName = displayName;
+	}
+    
+    
 }

@@ -1,0 +1,10 @@
+@charset "UTF-8";
+
+home_hrTag_OtherStyle {
+	border: 0;
+	clear: both;
+	display: block;
+	width: 3px;
+	color: #FFFF00;
+	height: 1px;
+}
