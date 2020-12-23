@@ -27,7 +27,20 @@
 		<div class="row">
 			<div class="col-12 mt-2">
 				<h2 class="text-center text-black-50">User List</h2>
-				<h4 class="text-center text-danger">Thong bao tai day !!!!</h4>
+<!-- 				<h4 class="text-center text-danger">Thong bao tai day !!!!</h4> -->
+                
+            <c:if test="${status != null && status == 'ok'}">
+                <div class="alert alert-success alert-dismissible text-center">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> <strong>${message}</strong>
+                </div>
+            </c:if>
+            <c:if test="${status != null && status == 'fail'}">
+                <div class="alert alert-danger alert-dismissible text-center">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> <strong>${message}</strong>
+                </div>
+            </c:if>
+                
+                
 			</div>
 		</div>
 		<div class="border border-success mx-md-4 mx-sm-2 mx-1">
