@@ -2,7 +2,14 @@ package vn.com.vtd.framework.controller.admin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
@@ -15,11 +22,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import vn.com.vtd.framework.constant.SystemConstant;
-import vn.com.vtd.framework.model.bean.NewModel;
+import vn.com.vtd.framework.excel.AutoExcel;
+import vn.com.vtd.framework.excel.imports.DataSet;
+import vn.com.vtd.framework.excel.parameters.FieldSetting;
+import vn.com.vtd.framework.excel.parameters.ImportPara;
+import vn.com.vtd.framework.model.bean.Product;
 import vn.com.vtd.framework.model.bean.UserModel;
+import vn.com.vtd.framework.model.dao.impl.ProductDAO;
 import vn.com.vtd.framework.model.service.IUserService;
 import vn.com.vtd.framework.paging.PageRequest;
-import vn.com.vtd.framework.utils.FormUtil;
 
 /**
  * Servlet implementation class UserController
@@ -65,6 +76,16 @@ public class UserController extends HttpServlet {
         } else if (SystemConstant.CREATE_FILE.equals(type)) {
             RequestDispatcher rd = request.getRequestDispatcher("/views/admin/jsp/create-user-file-view.jsp");
             rd.forward(request, response);
+        } else if (SystemConstant.RUN.equals(type)) {
+            //insert without batch
+            importExcel();
+            System.out.println("---------------------------------------------------------------");
+            //insert with batch
+            try {
+                importExcelWithBatch();
+            } catch (ClassNotFoundException | IOException | SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -74,12 +95,9 @@ public class UserController extends HttpServlet {
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-//        UserModel user = FormUtil.toModel(UserModel.class, request);
-//        userService.save(user);
-//        
         for (Part part : request.getParts()) {
             String fileName = extractFileName(part);
-            if(fileName.trim().isEmpty()) {
+            if (fileName.trim().isEmpty()) {
                 break;
             }
             // refines the fileName in case it is an absolute path
@@ -87,9 +105,9 @@ public class UserController extends HttpServlet {
 
             part.write(this.getFolderUpload().getAbsolutePath() + File.separator + fileName);
         }
-        response.sendRedirect(request.getContextPath() + "/admin-user?type=list&status=ok&message=Upload file success!");
+        response.sendRedirect(
+                request.getContextPath() + "/admin-user?type=list&status=ok&message=Upload file success!");
 
-        
     }
 
     /**
@@ -128,6 +146,97 @@ public class UserController extends HttpServlet {
             folderUpload.mkdirs();
         }
         return folderUpload;
+    }
+
+    public static List<Path> findByFileName(Path path) throws IOException {
+
+        if (!Files.isDirectory(path)) {
+            throw new IllegalArgumentException("Path must be a directory!");
+        }
+        String regex = "^(Import)[-]\\d{1,3}(.xlsx)$";
+        List<Path> result;
+        // walk file tree, no more recursive loop
+        try (Stream<Path> walk = Files.walk(path, 1)) {
+            result = walk.filter(Files::isReadable) // read permission
+                    .filter(Files::isRegularFile) // is a file
+                    .filter(p -> p.getFileName().toString().matches(regex)).collect(Collectors.toList());
+        }
+        return result;
+    }
+    
+    public void importExcelWithBatch() throws IOException, ClassNotFoundException, SQLException {
+        List<ImportPara> importParas = new ArrayList<ImportPara>() {
+            {
+                add(new ImportPara(0, genProductFieldSettings()));
+            }
+        };
+        String folderPath = "D:\\html";
+        Path path = Paths.get(folderPath);
+        List<Path> listPath = findByFileName(path);
+        DataSet dataSet2 = null;
+        for (Path path2 : listPath) {
+            dataSet2 = AutoExcel.read(folderPath + "\\" + path2.getFileName().toString(), importParas);
+        }
+        List<Product> products = dataSet2.get(0, Product.class);
+        ProductDAO productDAO = new ProductDAO();
+        productDAO.insertWithBatch(200, products);
+    }
+
+    public void importExcel() throws IOException {
+        List<ImportPara> importParas = new ArrayList<ImportPara>() {
+            {
+                add(new ImportPara(0, genProductFieldSettings()));
+            }
+        };
+        String folderPath = "D:\\html";
+        Path path = Paths.get(folderPath);
+        List<Path> listPath = findByFileName(path);
+        DataSet dataSet2 = null;
+        for (Path path2 : listPath) {
+            dataSet2 = AutoExcel.read(folderPath + "\\" + path2.getFileName().toString(), importParas);
+        }
+        List<Product> products = dataSet2.get(0, Product.class);
+        ProductDAO productDAO = new ProductDAO();
+        long startTime = System.currentTimeMillis();
+        for (Product product : products) {
+            productDAO.save(product);
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println("Done.");
+        System.out.println("Total time: " + (endTime - startTime));
+        
+//        DataSet dataSet = AutoExcel.read(fileName, importParas);
+        // Method 1: Obtain the original data without type conversion, you can
+        // check whether the data meets the requirements in this way
+//        List<Map<String, Object>> products = dataSet.get("Product");
+//        List<Map<String, Object>> projects = dataSet.get("Project");
+        // Method 2: Obtain the data of the specified class through the sheet index, the
+        // type is
+        // automatically converted, and an exception will be thrown if the conversion
+        // fails
+        // List<Product> products = dataSet.get(0, Product.class);
+        // List<Project> projects= dataSet.get(1, Project.class);
+        // Method 3: Obtain the data of the specified class through the sheet name, the
+        // type is
+        // automatically converted, and an exception will be thrown if the conversion
+        // fails
+        // List<Product> products = dataSet.get("Product", Product.class);
+        // List<Project> projects = dataSet.get("Project", Project.class);
+    }
+
+    public static List<FieldSetting> genProductFieldSettings() {
+        List<FieldSetting> fieldSettings = new ArrayList<FieldSetting>() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                add(new FieldSetting("productName", "Product Name"));
+                add(new FieldSetting("basalArea", "Basal Area"));
+                add(new FieldSetting("availableArea", "Available Area"));
+                add(new FieldSetting("buildingArea", "Building Area"));
+                add(new FieldSetting("buildingsNumber", "Buildings Number"));
+            }
+        };
+        return fieldSettings;
     }
 
 }

@@ -1,0 +1,1 @@
+start "" http://localhost:8080/TEMPLATEJSPSERVLET3/admin-user?type=run

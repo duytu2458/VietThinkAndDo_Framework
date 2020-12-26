@@ -71,7 +71,13 @@ ALTER TABLE comment ADD CONSTRAINT fk_comment_news FOREIGN KEY (new_id) REFERENC
 
 
 
-
+create table PRODUCT (
+	id bigint NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	product_name VARCHAR(150) ,
+	basal_area float ,
+	available_area float,
+	buildings_number float,
+);
 
 
 
